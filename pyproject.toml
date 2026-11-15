@@ -40,4 +40,5 @@ dev = [
 testpaths = ["tests"]
 python_files = ["test_*.py"]
 python_functions = ["test_*"]
-addopts = "-v --strict-markers"
+asyncio_mode = "auto"
+addopts = "-v"
