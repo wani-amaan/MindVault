@@ -13,7 +13,7 @@
 | :---: | :--- | :---: | :---: | :--- |
 | **01** | **Project Foundation & Architecture** | 🟢 **Completed** | 100% | SAD, Research Log, Git Branching, Clean `.venv`, Baseline Specs |
 | **02** | **Database & Knowledge Vault Core** | 🟢 **Completed** | 100% | SQLite WAL, Unified Schema, CRUD Engine, FTS5 Search Index |
-| **03** | **Ingestion & Reading Studio** | ⚪ Pending | 0% | PyMuPDF Ingestor, Bounding-Box Layout Parser, Workspace UI |
+| **03** | **Ingestion & Reading Studio** | 🟢 **Completed** | 100% | PyMuPDF Ingestor, Bounding-Box Layout Parser, Workspace UI |
 | **04** | **Hybrid Search & Evidence Engine** | ⚪ Pending | 0% | ONNX FastEmbed, Dense Vector Cosine, Reciprocal Rank Fusion |
 | **05** | **Contradiction & Logic Engine** | ⚪ Pending | 0% | Deterministic Candidate Filter, NLI Classifier, Explanation UI |
 | **06** | **Knowledge Graph & Impact Radar** | ⚪ Pending | 0% | NetworkX Epistemic Graph, Interactive Canvas, Centrality Cascade |
