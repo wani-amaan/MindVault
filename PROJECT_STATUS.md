@@ -15,7 +15,8 @@
 | **02** | **Database & Knowledge Vault Core** | 🟢 **Completed** | 100% | SQLite WAL, Unified Schema, CRUD Engine, FTS5 Search Index |
 | **03** | **Ingestion & Reading Studio** | 🟢 **Completed** | 100% | PyMuPDF Ingestor, Bounding-Box Layout Parser, Workspace UI |
 | **04** | **Hybrid Search & Evidence Engine** | 🟢 **Completed** | 100% | ONNX FastEmbed, Dense Vector Cosine, Reciprocal Rank Fusion |
-| **05** | **Contradiction & Logic Engine** | ⚪ Pending | 0% | Deterministic Candidate Filter, NLI Classifier, Explanation UI |
+| **05** | **Contradiction & Logic Engine** | 🟢 **Completed** | 100% | Deterministic Candidate Filter, NLI Classifier, Explanation UI |
+| **06** | **Knowledge Graph & Impact Radar** | ⚪ Pending | 0% | NetworkX Epistemic Graph, Interactive Canvas, Centrality Cascade |
 | **06** | **Knowledge Graph & Impact Radar** | ⚪ Pending | 0% | NetworkX Epistemic Graph, Interactive Canvas, Centrality Cascade |
 | **07** | **Critical Thinking & Simulation** | ⚪ Pending | 0% | Heuristic Fallacy Scanner, "What-If" Branching Sandbox, Timeline |
 | **08** | **AI Assistant & Packaging** | ⚪ Pending | 0% | Multi-Provider RAG Router, Windows Native Installer (Tauri/NSIS) |
