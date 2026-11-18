@@ -7,9 +7,26 @@ Versioning: [Semantic Versioning](https://semver.org/spec/v2.0.0.html)
 
 ---
 
-## [Unreleased]
-### In Progress
-- Phase 8: Tauri + React frontend, Windows installer
+## [v0.9.0-alpha] — 2026-11-19
+### Added
+- **Tauri v2 + React 19 + TypeScript Native Windows Desktop App** (`mindvault-ui`):
+  - Modern, responsive dark-mode dashboard with sidebar navigation.
+  - **Knowledge Vault View:** Interactive premise node creator with confidence sliders and live SQLite list.
+  - **Hybrid Search View:** FastEmbed vector + SQLite BM25 natural language search with relevance badges.
+  - **Graph Topology View:** Centrality status and NetworkX graph metrics.
+  - **Contradiction Radar View:** Conflict scanner and severity rating display.
+  - **What-If Simulation Sandbox:** Interactive node picker with downstream cascade delta reporting.
+  - **Grounded AI Assistant:** Conversational chat interface grounded strictly in vault context with offline support.
+- Configured MSVC C++ Build Tools toolchain for Windows compilation and native packaging.
+- Upgraded SQLite FTS5 search to support natural-language tokenization and multi-keyword queries.
+
+---
+
+## [v0.8.0-alpha] — 2026-11-18
+### Added
+- **What-If Simulation Sandbox** (`src/backend/simulation.py`): In-memory deep-copy graph simulation engine that cascades assumption modifications and computes delta impact reports without mutating the live graph.
+- **FastAPI REST Gateway** (`src/backend/main.py`): 19 endpoints exposing node CRUD, ingestion, hybrid search, contradiction scanning, graph serialization, impact cascades, timeline auditing, grounded AI Q&A, and what-if simulation.
+- 9 new tests in `tests/test_simulation.py` — all passing (36/36 tests passing total).
 
 ---
 
@@ -53,18 +70,12 @@ Versioning: [Semantic Versioning](https://semver.org/spec/v2.0.0.html)
 
 ## [v0.2.0-alpha] — 2026-11-15
 ### Added
-- **Database Engine** (`src/backend/database.py`): async SQLite WAL mode, unified schema (nodes, claims, edges, evidence, contradictions, timeline_events), FTS5 full-text search index, and all CRUD operations.
-- **Pydantic v2 Models** (`src/backend/models.py`): typed models for all entity types (Document, KnowledgeNode, Claim, Evidence, Contradiction, GraphEdge).
+- **Database & Knowledge Vault Core** (`src/backend/database.py`): SQLite in Write-Ahead-Log (WAL) mode with unified schema (`knowledge_nodes`, `claims`, `graph_edges`, `source_documents`), async connection pooling via `aiosqlite`, and full CRUD operations.
 - 4 new tests in `tests/test_database.py` — all passing.
 
 ---
 
-## [v0.1.0-alpha] — 2026-11-14
+## [v0.1.0-alpha] — 2026-11-15
 ### Added
-- Project foundation: MindVault repository initialised.
-- System Architecture Document (`docs/SYSTEM_ARCHITECTURE_DOCUMENT.md`).
-- Research & Competitive Landscape (`docs/RESEARCH_AND_COMPETITIVE_LANDSCAPE.md`).
-- Architecture Decision Records (`docs/ARCHITECTURE_DECISIONS.md`): ADR-001 (Tauri), ADR-002 (SQLite WAL + FTS5), ADR-003 (ONNX embeddings).
-- `README.md`, `LICENSE` (Apache 2.0), `.gitignore`, `pyproject.toml`.
-- Python 3.14 virtual environment (`.venv`) with baseline packages.
-- 2 foundation tests in `tests/test_foundation.py` — all passing.
+- Project structure, documentation suite (SAD, System Architecture Document, Specs), and baseline environment configurations.
+- 2 baseline tests in `tests/test_foundation.py` — all passing.

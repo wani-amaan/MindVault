@@ -1,9 +1,9 @@
 # MindVault — Project Status & Live Execution Tracker
 
-**Current Version:** `v0.7.0-alpha`  
-**Active Phase:** `Phase 8: Simulation Lab, FastAPI Gateway & Windows Packaging`  
-**Active Branch:** `feat/phase8-simulation-api`  
-**Last Verified:** 2026-11-18  
+**Current Version:** `v0.9.0-alpha`  
+**Active Phase:** `Phase 9: Tauri + React Desktop UI & Windows Application`  
+**Active Branch:** `feat/phase9-tauri-frontend`  
+**Last Verified:** 2026-11-19  
 
 ---
 
@@ -18,11 +18,13 @@
 | **05** | **Contradiction & Logic Engine** | 🟢 **Completed** | 100% | Opposing-Predicate Filter, Numerical Discrepancy Detector, Conflict Registry |
 | **06** | **Knowledge Graph & Impact Radar** | 🟢 **Completed** | 100% | NetworkX Epistemic Graph, PageRank Foundation Scores, Impact Cascade |
 | **07** | **Critical Thinking, Timeline & AI Assistant** | 🟢 **Completed** | 100% | Fallacy Scanner, Belief Audit Ledger, Grounded RAG Router (Gemini/Groq/Offline) |
-| **08** | **Simulation Lab, FastAPI Gateway & Packaging** | 🔵 **In Progress** | 0% | What-If Sandbox, REST API, Tauri+React UI, Windows Installer |
+| **08** | **Simulation Lab & FastAPI Gateway** | 🟢 **Completed** | 100% | What-If Sandbox (`simulation.py`), 19-route REST API (`main.py`) |
+| **09** | **Tauri + React Desktop UI** | 🟢 **Completed** | 100% | Native Windows Rust wrapper, 6-tab React dashboard, Live Backend Wiring |
+| **10** | **Packaging, Installer & Release** | 🔵 **In Progress** | 50% | Visual Studio MSVC Build Tools configured, `.msi` Windows installer generation |
 
 ---
 
-## 2. Test Suite Summary (27 tests — ALL PASSING)
+## 2. Test Suite Summary (36 tests — 100% PASSING)
 
 | Test File | Tests | Status | Tag |
 | :--- | :---: | :---: | :--- |
@@ -33,9 +35,10 @@
 | `tests/test_contradiction.py` | 3 | ✅ Pass | `v0.5.0-alpha` |
 | `tests/test_graph.py` | 5 | ✅ Pass | `v0.6.0-alpha` |
 | `tests/test_phase7.py` | 7 | ✅ Pass | `v0.7.0-alpha` |
-| **TOTAL** | **27** | ✅ **27/27** | — |
+| `tests/test_simulation.py` | 9 | ✅ Pass | `v0.8.0-alpha` |
+| **TOTAL** | **36** | ✅ **36/36** | — |
 
-Last full run: `27 passed in 28.77s` on 2026-11-18
+Last full run: `36 passed in 9.63s` on 2026-11-19
 
 ---
 
@@ -50,35 +53,16 @@ Last full run: `27 passed in 28.77s` on 2026-11-18
 | `v0.5.0-alpha` | Phase 5 | Contradiction Detection Engine |
 | `v0.6.0-alpha` | Phase 6 | Knowledge Graph & Impact Radar |
 | `v0.7.0-alpha` | Phase 7 | Critical Thinking, Timeline & AI Assistant |
+| `v0.8.0-alpha` | Phase 8 | Simulation Lab & FastAPI REST Gateway |
+| `v0.9.0-alpha` | Phase 9 | Tauri v2 + React 19 + TypeScript Native Windows UI |
 
 ---
 
-## 4. Installed Python Packages (`.venv`)
+## 4. UI Dashboard Architecture (`mindvault-ui`)
 
-| Package | Version | Purpose |
-| :--- | :--- | :--- |
-| `pytest` | latest | Test runner |
-| `pytest-asyncio` | latest | Async test support |
-| `pydantic` | v2 | Data validation & models |
-| `aiosqlite` | latest | Async SQLite |
-| `pymupdf` | 2.1+ | PDF/text ingestion |
-| `fastembed` | latest | ONNX quantized embeddings (BGE-small-en-v1.5) |
-| `networkx` | latest | Epistemic knowledge graph |
-| `numpy` | latest | Numerical operations |
-| `onnxruntime` | latest | ONNX model inference |
-
----
-
-## 5. Phase 8 Acceptance Checklist
-
-- [ ] `src/backend/simulation.py` — What-If sandbox (clone graph, toggle assumption, cascade delta)
-- [ ] `tests/test_simulation.py` — Simulation tests passing
-- [ ] `src/backend/main.py` — FastAPI gateway with all 9 route groups
-- [ ] `src/backend/__init__.py` — Package init
-- [ ] `fastapi` + `uvicorn[standard]` installed
-- [ ] Rust toolchain installed (`rustup` + `cargo`)
-- [ ] Tauri + React + TypeScript frontend scaffolded
-- [ ] 6 UI panels wired: Knowledge Vault, Graph Canvas, Search, Contradiction, Timeline, AI Chat
-- [ ] Windows `.msi` installer produced via `npm run tauri build`
-- [ ] `CHANGELOG.md`, `CONTRIBUTING.md`, `SECURITY.md` authored
-- [ ] Phase 8 branch merged to `main` with tag `v0.8.0-alpha`
+- **Knowledge Vault:** Live SQLite node viewer, premise creator with interactive confidence slider.
+- **Hybrid Search:** Natural-language tokenized BM25 + FastEmbed dense vector retrieval.
+- **Graph Explorer:** NetworkX graph topology and centrality metrics.
+- **Contradiction Radar:** Logic conflict alerts & severity indicators.
+- **What-If Sandbox:** Deep-copy graph hypothesis simulator with downstream cascade delta reporting.
+- **AI Assistant:** Grounded personal knowledge chatbot with strict citation constraints & offline fallback.

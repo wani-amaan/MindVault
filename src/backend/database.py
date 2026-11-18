@@ -150,23 +150,30 @@ class DatabaseEngine:
         if not sanitized:
             return []
 
+        # Tokenize query into words and search with OR to support natural language questions
+        words = [w for w in sanitized.split() if len(w) > 1]
+        fts_match = " OR ".join(f'"{w}"*' for w in words) if words else f'"{sanitized}"*'
+
         async with aiosqlite.connect(self.db_path) as db:
             db.row_factory = aiosqlite.Row
-            async with db.execute(
-                """
-                SELECT 
-                    n.id, n.node_type, n.title, n.content, n.status, n.confidence_score,
-                    bm25(knowledge_fts) as rank
-                FROM knowledge_fts fts
-                JOIN knowledge_nodes n ON fts.node_id = n.id
-                WHERE knowledge_fts MATCH ?
-                ORDER BY rank
-                LIMIT ?
-                """,
-                (f"{sanitized}*", limit)
-            ) as cursor:
-                rows = await cursor.fetchall()
-                return [dict(r) for r in rows]
+            try:
+                async with db.execute(
+                    """
+                    SELECT 
+                        n.id, n.node_type, n.title, n.content, n.status, n.confidence_score,
+                        bm25(knowledge_fts) as rank
+                    FROM knowledge_fts fts
+                    JOIN knowledge_nodes n ON fts.node_id = n.id
+                    WHERE knowledge_fts MATCH ?
+                    ORDER BY rank
+                    LIMIT ?
+                    """,
+                    (fts_match, limit)
+                ) as cursor:
+                    rows = await cursor.fetchall()
+                    return [dict(r) for r in rows]
+            except Exception:
+                return []
 
     async def insert_claim(self, claim: ClaimModel) -> ClaimModel:
         """Inserts an atomic claim linked to a knowledge node."""

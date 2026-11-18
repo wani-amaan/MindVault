@@ -153,8 +153,19 @@ async def list_nodes(
     offset: Annotated[int, Query(ge=0)] = 0,
 ) -> dict[str, Any]:
     db = await _get_db()
-    # Fetch via FTS wildcard — returns all rows up to limit
-    rows = await db.search_fts("*", limit=limit)
+    import aiosqlite
+    async with aiosqlite.connect(db.db_path) as conn:
+        conn.row_factory = aiosqlite.Row
+        async with conn.execute(
+            """
+            SELECT id, node_type, title, content, status, confidence_score, created_at, updated_at
+            FROM knowledge_nodes
+            ORDER BY created_at DESC
+            LIMIT ? OFFSET ?
+            """,
+            (limit, offset),
+        ) as cursor:
+            rows = [dict(r) for r in await cursor.fetchall()]
     return {"nodes": rows, "limit": limit, "offset": offset}
 
 
@@ -316,3 +327,4 @@ async def run_simulation(payload: SimulationRequest) -> dict[str, Any]:
         scenario_label=payload.scenario_label,
     )
     return report.to_dict()
+
