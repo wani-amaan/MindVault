@@ -81,6 +81,18 @@ CREATE TABLE IF NOT EXISTS graph_edges (
     created_at TEXT NOT NULL
 );
 
+
+-- 7. Audit and Belief Evolution Timeline
+CREATE TABLE IF NOT EXISTS timeline_events (
+    id TEXT PRIMARY KEY,
+    entity_id TEXT NOT NULL,
+    event_type TEXT NOT NULL,
+    previous_state_json TEXT,
+    new_state_json TEXT,
+    reason TEXT,
+    created_at TEXT NOT NULL
+);
+
 -- Full-Text Search (FTS5) for instant sub-millisecond keyword lookup
 CREATE VIRTUAL TABLE IF NOT EXISTS knowledge_fts USING fts5(
     node_id UNINDEXED,
@@ -183,3 +195,4 @@ class DatabaseEngine:
             )
             await db.commit()
             return edge
+
