@@ -226,9 +226,10 @@ async def search(
 @app.get("/contradictions", tags=["Contradictions"])
 async def list_contradictions() -> dict[str, Any]:
     db = await _get_db()
-    # Read persisted conflicts from DB via FTS on contradiction table
-    rows = await db.search_fts("", limit=200)   # crude fallback — OK for alpha
-    return {"message": "Use POST /contradictions/scan to detect conflicts", "count": 0}
+    search_engine = await _get_search()
+    engine = ContradictionDetectionEngine(db, search_engine)
+    conflicts = await engine.get_active_contradictions()
+    return {"contradictions": conflicts, "count": len(conflicts)}
 
 
 @app.post("/contradictions/scan", tags=["Contradictions"])
