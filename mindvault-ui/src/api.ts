@@ -32,11 +32,23 @@ export interface ContradictionItem {
   severity: number;
 }
 
+export interface NodeDelta {
+  node_id: string;
+  label: string;
+  baseline_impact: number;
+  simulated_impact: number;
+  delta: number;
+  is_toggled_assumption: boolean;
+}
+
 export interface SimulationResult {
-  toggled_nodes: string[];
   scenario_label: string;
-  nodes_affected: number;
-  delta_summary: Record<string, any>;
+  toggled_node_ids: string[];
+  simulation_warning: string;
+  baseline_total_impact: number;
+  simulated_total_impact: number;
+  impact_change_pct: number;
+  deltas: NodeDelta[];
 }
 
 export const MindVaultAPI = {

@@ -7,13 +7,11 @@ import {
   FlaskConical,
   MessageSquare,
   FileText,
-  Clock,
   Sparkles,
   RefreshCw,
   PlusCircle,
   TrendingDown,
   ShieldCheck,
-  CheckCircle2,
 } from "lucide-react";
 import { MindVaultAPI, NodeItem, SearchResult, ContradictionItem, SimulationResult } from "./api";
 import "./App.css";
@@ -25,7 +23,6 @@ export function App() {
 
   const [backendOnline, setBackendOnline] = useState<boolean>(false);
   const [nodes, setNodes] = useState<NodeItem[]>([]);
-  const [loading, setLoading] = useState<boolean>(false);
 
   // New Node Form
   const [newTitle, setNewTitle] = useState("");
@@ -63,20 +60,17 @@ export function App() {
       await MindVaultAPI.checkHealth();
       setBackendOnline(true);
       fetchNodes();
-    } catch (e) {
+    } catch {
       setBackendOnline(false);
     }
   };
 
   const fetchNodes = async () => {
-    setLoading(true);
     try {
       const data = await MindVaultAPI.getNodes();
       setNodes(data);
     } catch (e) {
       console.error("Failed to fetch nodes", e);
-    } finally {
-      setLoading(false);
     }
   };
 
@@ -92,49 +86,40 @@ export function App() {
       setNewTitle("");
       setNewContent("");
       await fetchNodes();
-    } catch (e: any) {
-      console.error(e);
-      alert(`Error creating node: ${e.response?.data?.detail || e.message}`);
+    } catch (err: any) {
+      console.error(err);
+      alert(`Error creating node: ${err.response?.data?.detail || err.message}`);
     }
   };
 
   const handleSearch = async (e: React.FormEvent) => {
     e.preventDefault();
     if (!searchQuery.trim()) return;
-    setLoading(true);
     try {
       const res = await MindVaultAPI.search(searchQuery);
       setSearchResults(res);
-    } catch (e) {
-      console.error(e);
-    } finally {
-      setLoading(false);
+    } catch (err) {
+      console.error(err);
     }
   };
 
   const handleFetchContradictions = async () => {
-    setLoading(true);
     try {
       const res = await MindVaultAPI.getContradictions();
       setContradictions(res);
-    } catch (e) {
-      console.error(e);
-    } finally {
-      setLoading(false);
+    } catch (err) {
+      console.error(err);
     }
   };
 
   const handleRunSimulation = async (e: React.FormEvent) => {
     e.preventDefault();
     if (!simNodeId) return;
-    setLoading(true);
     try {
-      const res = await MindVaultAPI.runSimulation(simNodeId, simTargetConf);
+      const res = await MindVaultAPI.runSimulation(simNodeId, `Scenario: ${simNodeId} @ ${Math.round(simTargetConf * 100)}%`);
       setSimResult(res);
-    } catch (e) {
+    } catch {
       alert("Simulation failed. Check if Node ID exists.");
-    } finally {
-      setLoading(false);
     }
   };
 
@@ -151,7 +136,7 @@ export function App() {
         ...prev,
         { sender: "ai", text: res.answer || res.response || JSON.stringify(res) },
       ]);
-    } catch (e) {
+    } catch {
       setChatMessages((prev) => [
         ...prev,
         {
@@ -468,7 +453,7 @@ export function App() {
                     <option value="">-- Choose a premise node --</option>
                     {nodes.map((n) => (
                       <option key={n.id} value={n.id}>
-                        {n.title} ({(n.confidence ?? 1.0) * 100}%)
+                        {n.title} ({Math.round((n.confidence_score ?? 1.0) * 100)}%)
                       </option>
                     ))}
                   </select>
@@ -498,15 +483,15 @@ export function App() {
                 {simResult ? (
                   <div className="sim-report">
                     <div className="sim-summary-box">
-                      <strong>Total Impacted Beliefs:</strong> {simResult.total_impacted}
+                      <strong>Scenario:</strong> {simResult.scenario_label}<br />
+                      <strong>Total Graph Impact Delta:</strong> {simResult.impact_change_pct}%
                     </div>
                     <div className="impact-list">
-                      {simResult.cascaded_nodes.map((item, idx) => (
+                      {simResult.deltas.map((item, idx) => (
                         <div key={idx} className="impact-item">
-                          <span>{item.title}</span>
+                          <span>{item.label}</span>
                           <span className="delta-badge">
-                            {item.old_score.toFixed(2)} → {item.new_score.toFixed(2)} (
-                            {(item.delta * 100).toFixed(0)}%)
+                            {item.baseline_impact.toFixed(4)} → {item.simulated_impact.toFixed(4)} ({item.delta > 0 ? "+" : ""}{item.delta.toFixed(4)})
                           </span>
                         </div>
                       ))}
