@@ -1,6 +1,6 @@
 """
 MindVault Database Core Models & Unified Schema
-Enforces strict type validation and referential integrity across the Knowledge Bus.
+Enforces strict type validation, epistemic state tracking, and referential integrity.
 """
 from datetime import datetime, timezone
 from enum import Enum
@@ -22,6 +22,7 @@ class NodeType(str, Enum):
     HYPOTHESIS = "HYPOTHESIS"
     QUESTION = "QUESTION"
     CONCLUSION = "CONCLUSION"
+    EVIDENCE = "EVIDENCE"
 
 class NodeStatus(str, Enum):
     DRAFT = "DRAFT"
@@ -35,6 +36,28 @@ class ClaimModality(str, Enum):
     PROBABLE = "PROBABLE"
     POSSIBLE = "POSSIBLE"
     SPECULATIVE = "SPECULATIVE"
+    FACT = "FACT"
+    HYPOTHESIS = "HYPOTHESIS"
+    OPINION = "OPINION"
+    AXIOM = "AXIOM"
+
+class ReviewStatus(str, Enum):
+    PENDING_REVIEW = "PENDING_REVIEW"
+    APPROVED = "APPROVED"
+    REJECTED = "REJECTED"
+    DISPUTED = "DISPUTED"
+
+class VerificationStatus(str, Enum):
+    VERIFIED_SUPPORTED = "VERIFIED_SUPPORTED"
+    STRONGLY_SUPPORTED = "STRONGLY_SUPPORTED"
+    PARTIALLY_SUPPORTED = "PARTIALLY_SUPPORTED"
+    CONTRADICTED_BY_EVIDENCE = "CONTRADICTED_BY_EVIDENCE"
+    OUTDATED_INFORMATION = "OUTDATED_INFORMATION"
+    MISLEADING_OR_MISSING_CONTEXT = "MISLEADING_OR_MISSING_CONTEXT"
+    CONFLICTING_EXTERNAL_SOURCES = "CONFLICTING_EXTERNAL_SOURCES"
+    INSUFFICIENT_EVIDENCE = "INSUFFICIENT_EVIDENCE"
+    NOT_EXTERNALLY_VERIFIABLE = "NOT_EXTERNALLY_VERIFIABLE"
+    PENDING_REVIEW = "PENDING_REVIEW"
 
 class EvidencePolarity(str, Enum):
     SUPPORTS = "SUPPORTS"
@@ -85,6 +108,24 @@ class ClaimModel(BaseModel):
     modality: ClaimModality = ClaimModality.CERTAIN
     source_doc_id: Optional[str] = None
     source_location_json: Optional[str] = None
+    confidence: float = 1.0
+    temporal_scope: Optional[str] = None
+    context_qualifier: Optional[str] = None
+    is_negated: bool = False
+    review_status: ReviewStatus = ReviewStatus.APPROVED
+    canonical_claim_id: Optional[str] = None
+    created_at: str = Field(default_factory=utc_now)
+
+class CanonicalClaimModel(BaseModel):
+    """Represents a normalized canonical proposition that multiple raw document assertions point to."""
+    id: str = Field(default_factory=generate_uuid)
+    canonical_text: str
+    subject: str
+    predicate: str
+    object: str
+    temporal_scope: Optional[str] = None
+    aggregate_confidence: float = 1.0
+    verification_status: VerificationStatus = VerificationStatus.PENDING_REVIEW
     created_at: str = Field(default_factory=utc_now)
 
 class EvidenceModel(BaseModel):
@@ -111,7 +152,18 @@ class GraphEdgeModel(BaseModel):
     id: str = Field(default_factory=generate_uuid)
     source_node_id: str
     target_node_id: str
-    relation_type: str  # e.g., 'DEPENDS_ON', 'DERIVED_FROM', 'CONTRADICTS'
+    relation_type: str  # e.g., 'SUPPORTS', 'CONTRADICTS', 'DERIVES_FROM', 'ASSUMES', 'EXTENDS'
     weight: float = 1.0
     metadata_json: Optional[str] = None
     created_at: str = Field(default_factory=utc_now)
+
+class ExternalVerificationRecordModel(BaseModel):
+    """Stores factual verification against external ground-truth sources."""
+    id: str = Field(default_factory=generate_uuid)
+    claim_id: str
+    external_source_name: str  # e.g., 'Wikipedia', 'PTI', 'Official'
+    external_source_url: Optional[str] = None
+    external_excerpt: str
+    status: VerificationStatus
+    explanation: str
+    retrieved_at: str = Field(default_factory=utc_now)
