@@ -529,25 +529,86 @@ export function App() {
           <div className="tab-pane">
             <header className="pane-header">
               <div>
-                <h1>Knowledge Graph & PageRank Topology</h1>
-                <p>Visual representation of node linkages, centrality, and causal impacts.</p>
+                <h1>Knowledge Graph & Causal Truth Topology</h1>
+                <p>Visual representation of node linkages, belief confidence, and causal impact propagation.</p>
               </div>
             </header>
 
-            <div className="mv-card graph-viewport">
-              <div className="empty-state">
-                <Share2 size={48} className="pulse-icon" />
-                <h3>Graph Topology Active</h3>
-                <p>
-                  Connected to NetworkX DiGraph backend. PageRank centrality & impact paths
-                  calculated.
-                </p>
-                <div className="graph-stats">
+            <div className="mv-card graph-viewport" style={{ padding: "16px" }}>
+              <div style={{ display: "flex", justifyContent: "space-between", marginBottom: "12px", alignItems: "center" }}>
+                <div className="graph-stats" style={{ margin: 0 }}>
                   <span className="stat-pill">Nodes: {nodes.length}</span>
-                  <span className="stat-pill">Centrality Engine: NetworkX</span>
-                  <span className="stat-pill">Storage: SQLite WAL</span>
+                  <span className="stat-pill">Epistemic Engine: Causal NetworkX</span>
+                  <span className="stat-pill">Mode: Interactive Topology Canvas</span>
                 </div>
+                <button className="btn-secondary" onClick={fetchNodes}>
+                  <RefreshCw size={14} /> Refresh Canvas
+                </button>
               </div>
+
+              {nodes.length === 0 ? (
+                <div className="empty-state" style={{ minHeight: "350px" }}>
+                  <Share2 size={48} className="pulse-icon" />
+                  <h3>Graph Canvas Ready</h3>
+                  <p>No nodes found yet. Add notes or ingest PDFs to populate interactive graph clusters.</p>
+                </div>
+              ) : (
+                <div style={{
+                  display: "grid",
+                  gridTemplateColumns: "repeat(auto-fill, minmax(220px, 1fr))",
+                  gap: "14px",
+                  maxHeight: "520px",
+                  overflowY: "auto",
+                  padding: "10px",
+                  background: "rgba(11, 19, 41, 0.7)",
+                  borderRadius: "8px",
+                  border: "1px solid var(--border)"
+                }}>
+                  {nodes.map((node, i) => (
+                    <div
+                      key={node.id}
+                      style={{
+                        padding: "12px",
+                        borderRadius: "8px",
+                        background: "#1e293b",
+                        border: "1px solid var(--border)",
+                        boxShadow: "0 4px 6px -1px rgba(0, 0, 0, 0.3)",
+                        cursor: "pointer",
+                        transition: "transform 0.15s ease",
+                      }}
+                      onClick={() => {
+                        setSelectedDocTitle(node.title);
+                        setSelectedDocText(node.content);
+                        setActiveTab("reader");
+                      }}
+                    >
+                      <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: "6px" }}>
+                        <span style={{ fontSize: "0.7rem", color: "#6366f1", fontWeight: 700 }}>
+                          NODE #{i + 1}
+                        </span>
+                        <span style={{
+                          fontSize: "0.7rem",
+                          padding: "2px 6px",
+                          borderRadius: "4px",
+                          background: (node.confidence_score ?? 1) > 0.8 ? "rgba(16, 185, 129, 0.2)" : "rgba(245, 158, 11, 0.2)",
+                          color: (node.confidence_score ?? 1) > 0.8 ? "#10b981" : "#f59e0b",
+                        }}>
+                          {Math.round((node.confidence_score ?? 1.0) * 100)}% Truth
+                        </span>
+                      </div>
+                      <div style={{ fontWeight: 600, fontSize: "0.9rem", marginBottom: "4px" }}>
+                        {node.title}
+                      </div>
+                      <div style={{ fontSize: "0.75rem", color: "#94a3b8", display: "-webkit-box", WebkitLineClamp: 2, WebkitBoxOrient: "vertical", overflow: "hidden" }}>
+                        {node.content}
+                      </div>
+                      <div style={{ marginTop: "8px", fontSize: "0.7rem", color: "#64748b" }}>
+                        Click to inspect in Reader &rarr;
+                      </div>
+                    </div>
+                  ))}
+                </div>
+              )}
             </div>
           </div>
         )}

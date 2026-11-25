@@ -40,6 +40,7 @@ class SimulationReport:
     baseline_total_impact: float
     simulated_total_impact: float
     impact_change_pct: float          # % change in total impact across graph
+    epistemic_belief_scores: dict[str, float] = field(default_factory=dict)
     simulation_warning: str = (
         "SIMULATION — NOT ESTABLISHED FACT. "
         "Results are based on a hypothetical counterfactual scenario."
@@ -53,6 +54,7 @@ class SimulationReport:
             "baseline_total_impact": round(self.baseline_total_impact, 4),
             "simulated_total_impact": round(self.simulated_total_impact, 4),
             "impact_change_pct": round(self.impact_change_pct, 2),
+            "epistemic_belief_scores": {k: round(v, 4) for k, v in self.epistemic_belief_scores.items()},
             "deltas": [
                 {
                     "node_id": d.node_id,
@@ -110,6 +112,42 @@ def _compute_impact(G: nx.DiGraph) -> dict[str, float]:
         return _pagerank_impact(G)
     except Exception:
         return _in_degree_impact(G)
+
+
+def _compute_epistemic_propagation(G: nx.DiGraph, toggled_nodes: list[str]) -> dict[str, float]:
+    """
+    Epistemic Truth Dependency Model:
+    Propagates belief collapse topologically along incoming/outgoing causal & premise edges.
+    Distinguishes epistemic truth confidence from graph structural centrality.
+    """
+    scores: dict[str, float] = {}
+    for n in G.nodes():
+        scores[n] = float(G.nodes[n].get("confidence_score", 1.0))
+
+    # Zero out explicitly toggled nodes
+    for nid in toggled_nodes:
+        if nid in scores:
+            scores[nid] = 0.0
+
+    # Topologically attenuate downstream dependent nodes
+    try:
+        visited = set(toggled_nodes)
+        queue = list(toggled_nodes)
+        while queue:
+            curr = queue.pop(0)
+            curr_score = scores.get(curr, 0.0)
+            # Propagate to downstream successors (nodes depending on curr)
+            for succ in G.successors(curr):
+                weight = G.get_edge_data(curr, succ, {}).get("weight", 0.8)
+                # If premise collapsed, scale down dependent conclusion
+                if curr_score < 0.5:
+                    scores[succ] = round(scores[succ] * (1.0 - weight * 0.7), 4)
+                if succ not in visited:
+                    visited.add(succ)
+                    queue.append(succ)
+    except Exception:
+        pass
+    return scores
 
 
 # ---------------------------------------------------------------------------
@@ -183,6 +221,8 @@ class SimulationLab:
             else 0.0
         )
 
+        epistemic_scores = _compute_epistemic_propagation(self._live_graph, toggled_node_ids)
+
         return SimulationReport(
             scenario_label=scenario_label,
             toggled_node_ids=toggled_node_ids,
@@ -190,6 +230,7 @@ class SimulationLab:
             baseline_total_impact=baseline_total,
             simulated_total_impact=sim_total,
             impact_change_pct=change_pct,
+            epistemic_belief_scores=epistemic_scores,
         )
 
     # ------------------------------------------------------------------
