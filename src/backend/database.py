@@ -279,6 +279,18 @@ class DatabaseEngine:
                 rows = await cursor.fetchall()
                 return [dict(r) for r in rows]
 
+    async def get_claim(self, claim_id: str) -> Optional[ClaimModel]:
+        """Retrieves a single atomic claim by UUID."""
+        async with aiosqlite.connect(self.db_path) as db:
+            db.row_factory = aiosqlite.Row
+            async with db.execute("SELECT * FROM claims WHERE id = ?", (claim_id,)) as cursor:
+                row = await cursor.fetchone()
+                if not row:
+                    return None
+                data = dict(row)
+                data["is_negated"] = bool(data.get("is_negated", 0))
+                return ClaimModel(**data)
+
     async def insert_canonical_claim(self, canonical: CanonicalClaimModel) -> CanonicalClaimModel:
         """Inserts a normalized canonical proposition."""
         async with aiosqlite.connect(self.db_path) as db:
