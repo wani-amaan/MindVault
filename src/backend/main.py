@@ -48,6 +48,7 @@ from src.backend.critical_thinking import CriticalThinkingEngine
 from src.backend.timeline import TimelineEngine
 from src.backend.ai_assistant import AIResearchAssistant
 from src.backend.simulation import SimulationLab
+from src.backend.external_verification import ExternalVerificationEngine
 from src.backend.models import KnowledgeNodeModel
 
 # ── App setup ────────────────────────────────────────────────────────────────
@@ -328,4 +329,36 @@ async def run_simulation(payload: SimulationRequest) -> dict[str, Any]:
         scenario_label=payload.scenario_label,
     )
     return report.to_dict()
+
+
+# ── External Factual Verification ──────────────────────────────────────────
+
+@app.post("/verify/claim/{claim_id}", tags=["Verification"])
+async def verify_claim(claim_id: str) -> dict[str, Any]:
+    db = await _get_db()
+    # Look up claim from database
+    claim = await db.get_claim(claim_id)
+    if not claim:
+        raise HTTPException(status_code=404, detail=f"Claim '{claim_id}' not found")
+    verifier = ExternalVerificationEngine(db)
+    rec = await verifier.verify_and_record(claim)
+    return rec.model_dump()
+
+
+@app.get("/verify/reports", tags=["Verification"])
+async def get_verification_reports(limit: int = 50) -> dict[str, Any]:
+    db = await _get_db()
+    async with aiosqlite.connect(db.db_path) as conn:
+        conn.row_factory = aiosqlite.Row
+        async with conn.execute(
+            """
+            SELECT id, claim_id, external_source_name, external_source_url, external_excerpt, status, explanation, retrieved_at
+            FROM external_verifications
+            ORDER BY retrieved_at DESC LIMIT ?
+            """,
+            (limit,)
+        ) as cursor:
+            rows = await cursor.fetchall()
+            return {"reports": [dict(r) for r in rows]}
+
 
