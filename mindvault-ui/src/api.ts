@@ -99,4 +99,23 @@ export const MindVaultAPI = {
     });
     return res.data;
   },
+
+  uploadDocument: async (file: File): Promise<any> => {
+    const formData = new FormData();
+    formData.append("file", file);
+    const res = await api.post("/ingest", formData, {
+      headers: { "Content-Type": "multipart/form-data" },
+    });
+    return res.data;
+  },
+
+  getVerificationReports: async (): Promise<any[]> => {
+    const res = await api.get("/verify/reports");
+    return res.data.reports || [];
+  },
+
+  verifyClaim: async (claimId: string): Promise<any> => {
+    const res = await api.post(`/verify/claim/${claimId}`);
+    return res.data;
+  },
 };
