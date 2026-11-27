@@ -74,3 +74,67 @@ Set-Location MindVault
 
 ## ⚖ License
 Licensed under the [Apache License, Version 2.0](LICENSE).
+
+## Installation
+
+### Prerequisites
+- Windows 10/11 (64‑bit)
+- Python 3.12+ (the project uses `pyproject.toml` to manage the environment)
+- Node.js v20+ (for the Tauri front‑end)
+- Rust toolchain (required by Tauri) – install via `rustup`.
+
+### Steps
+```powershell
+# Clone the repository
+git clone https://github.com/your-username/MindVault.git
+Set-Location MindVault
+
+# Create and activate a virtual environment
+python -m venv .venv
+.\.venv\Scripts\Activate.ps1
+
+# Install Python dependencies
+pip install -r requirements.txt  # or `pip install .` if a pyproject is provided
+
+# Install frontend dependencies
+cd mindvault-ui
+npm ci
+cd ..
+```
+
+## Running the Application
+
+### Backend (FastAPI)
+```powershell
+# From the repository root (with the virtual env active)
+python -m src.backend.main  # runs FastAPI on http://127.0.0.1:8000
+```
+
+### Front‑end (Tauri)
+```powershell
+cd mindvault-ui
+npm run tauri dev   # launches the desktop UI in development mode
+```
+
+> **Tip:** The UI communicates with the backend via the local HTTP API, so keep the backend running while you use the desktop client.
+
+## Using the UI
+
+- **Create a new Knowledge Graph** – Click *New Project* and point to an empty folder where the SQLite database will be stored.
+- **Import documents** – Drag‑and‑drop PDFs, Markdown, or plain‑text files onto the *Import* pane.
+- **Explore claims** – Use the graph view to see nodes, edges, and evidence sources. Clicking a claim shows the underlying excerpts.
+- **Run simulations** – The *Simulation* tab lets you tweak assumptions and instantly see which downstream conclusions are affected.
+
+## FAQ / Troubleshooting
+
+| Issue | Solution |
+|-------|----------|
+| `rustc` not found | Install the Rust toolchain: `rustup install stable && rustup default stable` |
+| `npm` commands fail | Ensure Node.js v20+ is on the PATH. Delete `node_modules` and run `npm ci` again. |
+| Backend cannot start (`port 8000 already in use`) | Stop any other process using the port or change the port in `src/backend/main.py`. |
+| Missing `.env` variables | Copy `.env.example` to `.env` and fill in required API keys (e.g., OpenAI). |
+| Tauri build errors | Make sure the Rust target `x86_64-pc-windows-msvc` is installed (`rustup target add x86_64-pc-windows-msvc`). |
+
+---
+
+*For detailed developer documentation see the `docs/` directory.*
