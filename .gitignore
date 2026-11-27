@@ -44,6 +44,9 @@ dist-ssr/
 # Tauri & Rust
 target/
 src-tauri/target/
+*.msi
+*.exe
+*.nsis
 
 # Local databases & Runtime state
 *.db
