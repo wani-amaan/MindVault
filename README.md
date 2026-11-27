@@ -1,26 +1,94 @@
 # MindVault — Your Personal Knowledge Debugger
 
 [![License](https://img.shields.io/badge/License-Apache_2.0-blue.svg)](https://opensource.org/licenses/Apache-2.0)
-[![Status](https://img.shields.io/badge/Status-v0.1.0--alpha-green.svg)](PROJECT_STATUS.md)
+[![Status](https://img.shields.io/badge/Status-v0.9.0--alpha-green.svg)](internal/PROJECT_STATUS.md)
 [![Platform](https://img.shields.io/badge/Platform-Windows_10%2F11_(64--bit)-lightgrey.svg)]()
 
-MindVault is an independently installable, local-first **Personal Knowledge Intelligence System** that transforms unstructured notes, research papers, and documents into a structured, verifiable, and evidence-supported knowledge graph.
+MindVault is a local-first **Personal Knowledge Intelligence System** that transforms unstructured notes, research papers, and documents into a structured, verifiable, and evidence-supported knowledge graph.
 
 It answers the core questions of personal epistemology:
-* **What do I know, and why do I believe it?**
-* **What empirical evidence supports or contradicts a claim?**
-* **If a foundational assumption is challenged, what conclusions collapse?**
-* **How has my understanding evolved over time?**
+
+- **What do I know, and why do I believe it?**
+- **What empirical evidence supports or contradicts a claim?**
+- **If a foundational assumption is challenged, what conclusions collapse?**
+- **How has my understanding evolved over time?**
 
 ---
 
-## 🏛 Key Architectural Features
+## ✨ Features
 
-- **Hybrid Deterministic Architecture:** Core graph algorithms, impact tracking, and full-text search are computed deterministically (zero hallucinations); AI is reserved for semantic extraction and language synthesis.
-- **Epistemic Dependency Mapping:** Quantifies how downstream conclusions rely on foundational assumptions.
-- **Two-Stage Contradiction Detection:** Algorithmic filtering paired with Natural Language Inference (NLI) to flag and explain conflicting claims.
-- **Resource-Conscious:** Engineered specifically for consumer hardware (Windows 10/11, 8 GB RAM, Intel Core i3) with a total runtime footprint $\le 1.4\text{ GB}$.
-- **Local-First & Private:** Core knowledge storage, graph traversal, and search operate 100% offline. Zero telemetry or external data transfer without explicit consent.
+| Feature | Description |
+|---------|-------------|
+| **Knowledge Graph** | Automatically builds a NetworkX epistemic graph from your documents with PageRank-scored foundation nodes |
+| **Hybrid Search** | Combines FastEmbed ONNX vectors (BGE-small) with SQLite FTS5 BM25 via Reciprocal Rank Fusion |
+| **Contradiction Radar** | Two-stage detection — algorithmic antonym/numerical filters + NLI semantic cross-checking |
+| **What-If Simulation** | Clone-and-modify sandbox that cascades assumption changes and reports downstream impact deltas |
+| **Grounded AI Assistant** | Conversational Q&A strictly grounded in your vault context, with offline fallback |
+| **Local-First & Private** | All data stays on your machine — zero telemetry, zero external data transfer without consent |
+| **Resource-Conscious** | Runs on consumer hardware (8 GB RAM, Intel Core i3) with ≤ 1.4 GB total runtime footprint |
+
+---
+
+## 🚀 Getting Started
+
+### Prerequisites
+
+| Tool | Version | Why |
+|------|---------|-----|
+| **Windows** | 10/11 (64-bit) | Target platform |
+| **Python** | 3.12+ | Backend engine |
+| **Node.js** | v20+ | Frontend build tooling |
+| **Rust** | stable | Tauri native shell — install via [rustup](https://rustup.rs/) |
+
+### Installation
+
+```powershell
+# 1. Clone the repository
+git clone https://github.com/wani-amaan/MindVault.git
+cd MindVault
+
+# 2. Create & activate a Python virtual environment
+python -m venv .venv
+.\.venv\Scripts\Activate.ps1
+
+# 3. Install Python dependencies
+pip install -e .
+
+# 4. Install frontend dependencies
+cd mindvault-ui
+npm ci
+cd ..
+```
+
+### Running
+
+Open **two terminals** (both from the repo root with the venv active):
+
+**Terminal 1 — Backend**
+```powershell
+python -m src.backend.main
+# FastAPI starts on http://127.0.0.1:8000
+```
+
+**Terminal 2 — Desktop UI**
+```powershell
+cd mindvault-ui
+npm run tauri dev
+# Opens the native MindVault window
+```
+
+> **Tip:** Keep the backend running while using the desktop client — the UI calls it over HTTP.
+
+---
+
+## 🖥 Using MindVault
+
+1. **Add Knowledge** — Drop PDFs, Markdown, or plain-text files into the Knowledge Vault tab, or create premises manually with confidence sliders.
+2. **Search** — Type natural-language queries in the Hybrid Search tab; results are ranked by combined vector + keyword relevance.
+3. **Explore the Graph** — The Graph Topology tab shows centrality scores, node relationships, and evidence chains.
+4. **Detect Contradictions** — The Contradiction Radar scans your vault for conflicting claims and shows severity ratings.
+5. **Run Simulations** — In the What-If Sandbox, toggle an assumption's confidence and instantly see which downstream conclusions are affected.
+6. **Ask the AI** — The Grounded AI Assistant answers questions using only evidence from your vault (with optional Gemini/Groq API for richer answers).
 
 ---
 
@@ -28,113 +96,87 @@ It answers the core questions of personal epistemology:
 
 ```
 MindVault/
-├── docs/                                  # Architectural & scientific documentation
-│   ├── SYSTEM_ARCHITECTURE_DOCUMENT.md   # Complete system architecture specification
-│   ├── RESEARCH_AND_COMPETITIVE_LANDSCAPE.md # Literature review & research log
-│   └── ARCHITECTURE_DECISIONS.md         # ADR registry
-├── src/                                   # Application source code
-│   ├── backend/                           # Python FastAPI asynchronous engine
-│   └── frontend/                          # Tauri + React + Tailwind UI
-├── tests/                                 # Unit, integration, and performance benchmarks
-├── research/                              # Academic datasets & evaluation scripts
-├── .gitignore                             # Clean repository filters
-├── LICENSE                                # Apache License 2.0
-├── PROJECT_STATUS.md                      # Live phase execution tracker
-└── pyproject.toml                         # Python package and dependency configuration
+├── src/
+│   └── backend/              # Python FastAPI engine
+│       ├── main.py           #   19-route REST API gateway
+│       ├── database.py       #   SQLite WAL + schema management
+│       ├── ingestion.py      #   PDF/text ingestion & parsing
+│       ├── search.py         #   Hybrid vector + FTS5 search
+│       ├── graph.py          #   NetworkX epistemic graph
+│       ├── contradiction.py  #   Conflict detection engine
+│       ├── simulation.py     #   What-If sandbox
+│       ├── ai_assistant.py   #   Grounded RAG assistant
+│       └── ...
+├── mindvault-ui/             # Tauri v2 + React 19 desktop app
+│   ├── src/                  #   React components & API layer
+│   └── src-tauri/            #   Rust native shell & config
+├── tests/                    # 36 unit & integration tests (100% passing)
+├── docs/                     # Architecture & research documentation
+│   ├── SYSTEM_ARCHITECTURE_DOCUMENT.md
+│   ├── ARCHITECTURE_DECISIONS.md
+│   └── RESEARCH_AND_COMPETITIVE_LANDSCAPE.md
+├── internal/                 # Developer-only tracking docs (not user-facing)
+├── .env.example              # Template for API keys (copy to .env)
+├── pyproject.toml            # Python package & dependency config
+├── CHANGELOG.md              # Version history
+├── CONTRIBUTING.md           # Contribution guidelines
+├── SECURITY.md               # Vulnerability reporting policy
+└── LICENSE                   # Apache License 2.0
 ```
 
 ---
 
-## 🚀 Quickstart (Development Mode)
+## 🔧 Configuration
 
-### Prerequisites
-* Windows 10/11 (64-bit)
-* Python 3.12+ (Installed: Python 3.14)
-* Node.js v20+ (Installed: Node.js v24)
+Copy `.env.example` to `.env` and fill in any API keys you want:
 
-### Setup
 ```powershell
-# Clone the repository
-git clone https://github.com/your-username/MindVault.git
-Set-Location MindVault
-
-# Activate the isolated virtual environment
-.\.venv\Scripts\Activate.ps1
+Copy-Item .env.example .env
 ```
+
+| Variable | Required | Purpose |
+|----------|----------|---------|
+| `GEMINI_API_KEY` | No | Google Gemini Flash for AI assistant (free tier available) |
+| `GROQ_API_KEY` | No | Groq LPU for faster AI inference |
+
+> The app works **fully offline** without any API keys — the AI assistant falls back to local context-only mode.
 
 ---
 
-## 📜 Documentation & Roadmap
-* [System Architecture Document (SAD)](docs/SYSTEM_ARCHITECTURE_DOCUMENT.md)
-* [Research, State of the Art & Benchmarks](docs/RESEARCH_AND_COMPETITIVE_LANDSCAPE.md)
-* [Architecture Decision Records](docs/ARCHITECTURE_DECISIONS.md)
-* [Live Phase Status & Milestones](PROJECT_STATUS.md)
+## 🧪 Running Tests
+
+```powershell
+# From the repo root with the venv active
+pytest tests/ -v
+```
+
+All 36 tests across 8 test suites should pass.
+
+---
+
+## ❓ Troubleshooting
+
+| Problem | Solution |
+|---------|----------|
+| `rustc` not found | Install the Rust toolchain: `rustup install stable && rustup default stable` |
+| `npm` commands fail | Ensure Node.js v20+ is on PATH. Delete `node_modules/` and run `npm ci` again |
+| Port 8000 already in use | Stop the other process, or change the port in `src/backend/main.py` |
+| Missing `.env` variables | Copy `.env.example` → `.env` and add your keys |
+| Tauri build errors | Run `rustup target add x86_64-pc-windows-msvc` |
+
+---
+
+## 📜 Documentation
+
+- [System Architecture Document](docs/SYSTEM_ARCHITECTURE_DOCUMENT.md) — full technical specification
+- [Architecture Decision Records](docs/ARCHITECTURE_DECISIONS.md) — design rationale log
+- [Research & Competitive Landscape](docs/RESEARCH_AND_COMPETITIVE_LANDSCAPE.md) — literature review & benchmarks
+- [Changelog](CHANGELOG.md) — version history
+- [Contributing Guide](CONTRIBUTING.md) — how to get involved
+- [Security Policy](SECURITY.md) — vulnerability reporting
 
 ---
 
 ## ⚖ License
+
 Licensed under the [Apache License, Version 2.0](LICENSE).
-
-## Installation
-
-### Prerequisites
-- Windows 10/11 (64‑bit)
-- Python 3.12+ (the project uses `pyproject.toml` to manage the environment)
-- Node.js v20+ (for the Tauri front‑end)
-- Rust toolchain (required by Tauri) – install via `rustup`.
-
-### Steps
-```powershell
-# Clone the repository
-git clone https://github.com/your-username/MindVault.git
-Set-Location MindVault
-
-# Create and activate a virtual environment
-python -m venv .venv
-.\.venv\Scripts\Activate.ps1
-
-# Install Python dependencies
-pip install -r requirements.txt  # or `pip install .` if a pyproject is provided
-
-# Install frontend dependencies
-cd mindvault-ui
-npm ci
-cd ..
-```
-
-## Running the Application
-
-### Backend (FastAPI)
-```powershell
-# From the repository root (with the virtual env active)
-python -m src.backend.main  # runs FastAPI on http://127.0.0.1:8000
-```
-
-### Front‑end (Tauri)
-```powershell
-cd mindvault-ui
-npm run tauri dev   # launches the desktop UI in development mode
-```
-
-> **Tip:** The UI communicates with the backend via the local HTTP API, so keep the backend running while you use the desktop client.
-
-## Using the UI
-
-- **Create a new Knowledge Graph** – Click *New Project* and point to an empty folder where the SQLite database will be stored.
-- **Import documents** – Drag‑and‑drop PDFs, Markdown, or plain‑text files onto the *Import* pane.
-- **Explore claims** – Use the graph view to see nodes, edges, and evidence sources. Clicking a claim shows the underlying excerpts.
-- **Run simulations** – The *Simulation* tab lets you tweak assumptions and instantly see which downstream conclusions are affected.
-
-## FAQ / Troubleshooting
-
-| Issue | Solution |
-|-------|----------|
-| `rustc` not found | Install the Rust toolchain: `rustup install stable && rustup default stable` |
-| `npm` commands fail | Ensure Node.js v20+ is on the PATH. Delete `node_modules` and run `npm ci` again. |
-| Backend cannot start (`port 8000 already in use`) | Stop any other process using the port or change the port in `src/backend/main.py`. |
-| Missing `.env` variables | Copy `.env.example` to `.env` and fill in required API keys (e.g., OpenAI). |
-| Tauri build errors | Make sure the Rust target `x86_64-pc-windows-msvc` is installed (`rustup target add x86_64-pc-windows-msvc`). |
-
----
-
-*For detailed developer documentation see the `docs/` directory.*
