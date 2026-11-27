@@ -15,6 +15,16 @@ It answers the core questions of personal epistemology:
 
 ---
 
+## 📥 Download & Install (Windows)
+
+> **No Python, Node.js, or Rust required!** The standalone Windows installer bundles everything.
+
+1. Go to the [**Latest Release**](https://github.com/wani-amaan/MindVault/releases/latest) page.
+2. Download **`mindvault-ui_0.1.0_x64_en-US.msi`** (or `mindvault-ui_0.1.0_x64-setup.exe`).
+3. Run the installer and launch **MindVault** from your Start Menu.
+
+---
+
 ## ✨ Features
 
 | Feature | Description |
